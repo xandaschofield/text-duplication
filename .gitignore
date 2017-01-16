@@ -1,3 +1,7 @@
+# Where I keep condor logs
+logs/*
+
+## Standard Python template from Github
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
