@@ -16,7 +16,7 @@ class CorpusDeduplicator(object):
             token_pattern=r"\w[\w\-']+\w",
             max_df=0.8,
             diff_tol=0.2,
-            max_ngram=10
+            max_ngram=12
         ):
         """Creates a new CorpusDeduplicator.
         
@@ -59,7 +59,6 @@ class CorpusDeduplicator(object):
 
         Returns:
         a set of integers identifying indices of documents to retain
-
         """
         doc_lengths = self.raw_document_vectors.sum(axis=1)
         n_docs = len(doc_lengths)
@@ -70,8 +69,7 @@ class CorpusDeduplicator(object):
         frequently. Edits self.doc_lines in place.
         """
         trie = {}
-        dup_trie = {}
-        idx_lines = []
+        threshold = 20
 
         # Helper functions for tries (prefix trees)
         # TODO (xanda|1-19-17) split out into separate class
@@ -81,14 +79,13 @@ class CorpusDeduplicator(object):
                     trie[idx] = {}
                 trie = trie[idx]
             trie[idx_list[-1]] = 1 + trie.get(idx_list[-1], 0)
-            return trie[idx_list[-1]]
 
         def is_in_trie(idx_list, trie):
             for idx in idx_list:
                 if idx not in trie:
                     return False
                 trie = trie[idx]
-            return True
+            return trie >= threshold
 
         # The same tokenizer as the CountVectorizer uses for loading data
         tokenizer = RegexpTokenizer(r'(?u)\b\w\w+\b')
@@ -103,30 +100,23 @@ class CorpusDeduplicator(object):
             tok_ids = [self.vocab[tok] for tok in toks if tok in self.vocab]
             if len(tok_ids) < self.max_ngram:
                 continue
-            idx_lines.append(tok_ids)
             for j in range(len(tok_ids) - self.max_ngram + 1):
                 sublist = tok_ids[j:j+self.max_ngram]
-                ct = add_to_trie(sublist, trie)
-                # For those that have shown up enough, add them to the
-                # official trie for deduplication
-                if ct > 20:
-                    add_to_trie(sublist, dup_trie)
+                add_to_trie(sublist, trie)
 
         # Go back through each document and delete words that show up in a
         # filtered n-gram. We can't do this greedily because many ngrams will
         # overlap, so we have to collect up the overlaps first.
-        new_lines = []
         inverted_vocab = {v: k for k, v in self.vocab.items()}
-        for idx_line in idx_lines:
+        for line_idx, line in enumerate(self.doc_lines):
+            toks = tokenizer.tokenize(line.lower())
+            idx_line = [self.vocab[tok] for tok in toks if tok in self.vocab]
             l = len(idx_line)
             bool_line = [True] * l
-            for i in range(l + self.max_ngram - 1):
-                if is_in_trie(idx_line[i:i+self.max_ngram], dup_trie):
+            for i in range(l - self.max_ngram + 1):
+                if is_in_trie(idx_line[i:i+self.max_ngram], trie):
                     for j in range(i, i+self.max_ngram):
                         bool_line[j] = False
             trimmed_idxs = [idx for idx, keep in zip(idx_line, bool_line) if keep]
             if len(trimmed_idxs) >= self.max_ngram:
-                new_lines.append(' '.join([inverted_vocab[idx] for idx in trimmed_idxs]))
-
-        self.doc_lines = new_lines
-        return
+                self.lines[line_idx] = (' '.join([inverted_vocab[idx] for idx in trimmed_idxs]))
