@@ -5,7 +5,7 @@ output = ../logs/load-$(Cluster)-$(Process).out
 error = ../logs/load-$(Cluster)-$(Process).err
 log = ../logs/load-$(Cluster)-$(Process).log
 getenv = True
-arguments = ../mallet_inputs/reusl-train-$(Process)
+arguments = ../exact_duplicates_input/reusl-train-$(Process)
 queue 10
-arguments = ../mallet_inputs/nyt-train-$(Process)
+arguments = ../exact_duplicates_input/nyt-train-$(Process)
 queue 10

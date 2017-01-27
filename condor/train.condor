@@ -7,5 +7,5 @@ log = ../logs/train-$(Cluster)-$(Process).log
 getenv = True
 arguments = reusl-train $(Process)
 queue 300
-arguments = nyt-train $(Process - 300)
+arguments = nyt-train $(Process)
 queue 300
