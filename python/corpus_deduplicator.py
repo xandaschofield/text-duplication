@@ -6,7 +6,11 @@
 
 An class for deduplicating corpora.
 """
+import sys
+
 from nltk.tokenize import RegexpTokenizer
+import numpy as np
+from scipy.spatial import distance
 from sklearn.feature_extraction import text
 
 
@@ -19,7 +23,7 @@ class CorpusDeduplicator(object):
             max_ngram=12
         ):
         """Creates a new CorpusDeduplicator.
-        
+
         Arguments:
             token_pattern::string -- regular expression for tokens
             max_df::float -- maximum document frequency proportion (0 to 1)
@@ -33,10 +37,10 @@ class CorpusDeduplicator(object):
         self.doc_lines = []
         self.vocab = {}
 
-    def load_corpus_from_file_as_unigrams(self, filename):
+    def load_corpus_from_file(self, filename):
         """Load a MALLET corpus from a file, retaining only unigram counts.
         Assumes one line per document
-        
+
         Arguments:
             filename::str -- name of the file from which to read documents
 
@@ -49,10 +53,11 @@ class CorpusDeduplicator(object):
         )
         with open(filename) as corpus_file:
             self.doc_lines = [line for line in corpus_file]
-        self.raw_document_vectors = corpus_cv.fit_transform(self.doc_lines)
+        self.docs_to_keep = set(range(len(self.doc_lines)))
+        self.raw_document_vectors = corpus_cv.fit_transform(self.doc_lines).tocsr()
         self.vocab = corpus_cv.vocabulary_
-        
-    def deduplicate_by_unigrams(self):
+
+    def deduplicate_bow(self):
         """Returns a set of document indices to retain based upon removing
         texts with high unigram overlap, retaining only the longest in each
         overlap check.
@@ -62,14 +67,51 @@ class CorpusDeduplicator(object):
         """
         doc_lengths = self.raw_document_vectors.sum(axis=1)
         n_docs = len(doc_lengths)
-        docs_to_keep = set(range(n_docs))
+
+        buckets = [0.1 * i for i in range(1, 10)]
+        numerators = [0 for i in range(1, 10)]
+        denominator = 0
+
+        # The comparison matrix here is pretty big, so we do this in
+        # chunks to compare documents with each other
+        stride = 2500
+        for i in range(0, n_docs, stride):
+            iend = min(i + stride, n_docs)
+            for j in range(i, n_docs, stride):
+                print('Index', i, j)
+                # We gather indices of documents with less than a tolerated
+                # cosine distance between them
+                jend = min(j + stride, n_docs)
+                comp_mat = distance.cdist(
+                        self.raw_document_vectors[i:iend,:].toarray(),
+                        self.raw_document_vectors[j:jend,:].toarray(),
+                        'cosine'
+                )
+                denominator += comp_mat.shape[0] * comp_mat.shape[1]
+                for c, b in enumerate(buckets):
+                    numerators[c] += len(np.where(comp_mat < b)[0])
+                xs, ys = np.where(comp_mat < self.diff_tol)
+                for x, y in zip(xs, ys):
+                    if x == y or np.isnan(comp_mat[x, y]):
+                        continue
+                    # We keep the longer of the two documents
+                    idx_a = x + i
+                    idx_b = y + j
+                    if idx_a in self.docs_to_keep and idx_b in self.docs_to_keep:
+                        if doc_lengths[idx_b] > doc_lengths[idx_a]:
+                            self.docs_to_keep.remove(idx_a)
+                        else:
+                            self.docs_to_keep.remove(idx_b)
+        print('Dedupe bucket')
+        for b, num in zip(buckets, numerators):
+            print(b, ':', float(num - n_docs) / (denominator - n_docs))
 
     def deduplicate_ngrams(self):
         """Modifies the lines of text to remove long n-grams that appear
         frequently. Edits self.doc_lines in place.
         """
         trie = {}
-        threshold = 20
+        threshold = 10
 
         # Helper functions for tries (prefix trees)
         # TODO (xanda|1-19-17) split out into separate class
@@ -92,10 +134,10 @@ class CorpusDeduplicator(object):
 
         # Go through each line and pull out the n-grams, adding them
         # to the trie
-        # TODO (xanda|1-19-17) this is a little too memory hungry right now
-        for i, line in enumerate(self.doc_lines):
-            if i % 1000 == 0:
-                print('Line', i)
+        for i, idx in enumerate(self.docs_to_keep):
+            if (i + 1) % 1000 == 0:
+                print('Line', (i + 1), 'of', len(self.docs_to_keep))
+            line = self.doc_lines[idx]
             toks = tokenizer.tokenize(line.lower())
             tok_ids = [self.vocab[tok] for tok in toks if tok in self.vocab]
             if len(tok_ids) < self.max_ngram:
@@ -109,6 +151,8 @@ class CorpusDeduplicator(object):
         # overlap, so we have to collect up the overlaps first.
         inverted_vocab = {v: k for k, v in self.vocab.items()}
         for line_idx, line in enumerate(self.doc_lines):
+            if line_idx not in self.docs_to_keep:
+                continue
             toks = tokenizer.tokenize(line.lower())
             idx_line = [self.vocab[tok] for tok in toks if tok in self.vocab]
             l = len(idx_line)
@@ -119,4 +163,34 @@ class CorpusDeduplicator(object):
                         bool_line[j] = False
             trimmed_idxs = [idx for idx, keep in zip(idx_line, bool_line) if keep]
             if len(trimmed_idxs) >= self.max_ngram:
-                self.lines[line_idx] = (' '.join([inverted_vocab[idx] for idx in trimmed_idxs]))
+                self.doc_lines[line_idx] = (' '.join([inverted_vocab[idx] for idx in trimmed_idxs]))
+            else:
+                self.docs_to_keep.discard(line_idx)
+
+    def delete_english(self):
+        """Deletes lines containing English.
+        """
+        english_words = ['the', 'and', 'was']
+        english_threshold = 8
+        english_idxs = [self.vocab[v] for v in english_words]
+        english_cts = self.raw_document_vectors[:, english_idxs].sum(axis=1)
+        english_idxs, _ = np.where(english_cts > english_threshold)
+        self.docs_to_keep.difference_update(english_idxs)
+
+
+if __name__ == '__main__':
+    if len(sys.argv) < 3:
+        raise IndexError("Not enough arguments provided")
+    cd = CorpusDeduplicator(
+            max_df=0.8,
+            diff_tol=0.3,
+            max_ngram=7)
+    cd.load_corpus_from_file(sys.argv[1])
+    if 'reusl' in sys.argv[1]:
+        cd.delete_english()
+    cd.deduplicate_bow()
+    cd.deduplicate_ngrams()
+    with open(sys.argv[2], 'w') as f:
+        for idx in cd.docs_to_keep:
+            f.write(cd.doc_lines[idx] + '\n')
+

@@ -1,0 +1,12 @@
+universe = vanilla
+executable = ../python/corpus_deduplicator.py
+notification = Never
+# requirements = Memory >= 10240
+output = ../logs/dedupe-$(Cluster)-$(Process).out
+error = ../logs/dedupe-$(Cluster)-$(Process).err
+log = ../logs/dedupe-$(Cluster)-$(Process).log
+getenv = True
+arguments = ../misc/reusl-sample.txt ../misc/reusl-sample-opt-$(Process).txt
+queue 10
+arguments = ../misc/nyt-sample.txt ../misc/nyt-sample-opt-$(Process).txt
+queue 10

@@ -1,0 +1,11 @@
+universe = vanilla
+executable = ../bash/load_into_mallet.sh
+notification = Never
+output = ../logs/load-$(Cluster)-$(Process).out
+error = ../logs/load-$(Cluster)-$(Process).err
+log = ../logs/load-$(Cluster)-$(Process).log
+getenv = True
+arguments = ../mallet_inputs/reusl-train-$(Process)
+queue 10
+arguments = ../mallet_inputs/nyt-train-$(Process)
+queue 10

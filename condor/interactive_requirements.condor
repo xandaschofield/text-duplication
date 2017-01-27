@@ -1,0 +1,3 @@
+# Requirements    = Memory >= 65536
+Requirements    = Memory >= 10000
+Queue
