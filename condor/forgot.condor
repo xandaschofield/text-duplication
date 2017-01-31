@@ -1,0 +1,11 @@
+universe = vanilla
+executable = ../bash/forgot_metrics.sh
+notification = Never
+output = ../logs/forgot-metrics-$(Cluster)-$(Process).out
+error = ../logs/forgot-metrics-$(Cluster)-$(Process).err
+log = ../logs/forgot-metrics-$(Cluster)-$(Process).log
+getenv = True
+arguments = reusl-train $(Process)
+queue 300
+arguments = nyt-train $(Process)
+queue 300
