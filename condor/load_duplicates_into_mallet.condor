@@ -5,7 +5,11 @@ output = ../logs/load-$(Cluster)-$(Process).out
 error = ../logs/load-$(Cluster)-$(Process).err
 log = ../logs/load-$(Cluster)-$(Process).log
 getenv = True
-arguments = ../exact_duplicates_input/reusl-train-$(Process)
+# arguments = ../exact_duplicates_input/reusl-train-$(Process)
+# arguments = ../lorem_ipsum_input/reusl-train-$(Process)
+arguments = ../sample_template_input/reusl-train-$(Process)
 queue 10
-arguments = ../exact_duplicates_input/nyt-train-$(Process)
+# arguments = ../exact_duplicates_input/nyt-train-$(Process)
+# arguments = ../lorem_ipsum_input/nyt-train-$(Process)
+arguments = ../sample_template_input/nyt-train-$(Process)
 queue 10

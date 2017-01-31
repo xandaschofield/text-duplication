@@ -1,0 +1,11 @@
+universe = vanilla
+executable = ../bash/train-lorem.sh
+notification = Never
+output = ../logs/train-lorem-$(Cluster)-$(Process).out
+error = ../logs/train-lorem-$(Cluster)-$(Process).err
+log = ../logs/train-lorem-$(Cluster)-$(Process).log
+getenv = True
+arguments = reusl-train $(Process)
+queue 50
+arguments = nyt-train $(Process)
+queue 50

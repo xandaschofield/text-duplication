@@ -1,0 +1,11 @@
+universe = vanilla
+executable = ../python/write_template_duplicates_mallet.py
+notification = Never
+output = ../logs/lorem-$(Cluster)-$(Process).out
+error = ../logs/lorem-$(Cluster)-$(Process).err
+log = ../logs/lorem-$(Cluster)-$(Process).log
+getenv = True
+arguments = ../data/reusl-train.txt ../lorem_ipsum_input/reusl-train-$(Process)-{}.txt ../data/lorem-ipsum.txt 100 
+queue 10
+arguments = ../data/nyt-train.txt ../lorem_ipsum_input/nyt-train-$(Process)-{}.txt ../data/lorem-ipsum.txt 100 
+queue 10

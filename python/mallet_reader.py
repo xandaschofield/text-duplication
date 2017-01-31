@@ -6,7 +6,6 @@
 
 A class allowing reading of documents from a MALLET-formatted file.
 """
-import re
 
 
 class MalletReader():

@@ -2,7 +2,6 @@
 # -*- coding: utf-8 -*-
 # Author: Xanda Schofield
 import random
-import sys
 
 
 def sample_lines(lines, proportion):
@@ -53,18 +52,19 @@ def duplicate_single_template(
 
     for prop in proportion_list:
         sampled_lines, unsampled_lines = sample_lines(lines, prop)
-        sampled_lines = [(i, template_string + ' ' + line) for (i, line) in lines]
+        sampled_lines = [(i, template_string + ' ' + line) for (i, line) in sampled_lines]
         output_filename = output_filename_format.format(prop)
         write_repeat_file(
                 output_filename,
                 sampled_lines,
                 unsampled_lines)
 
+
 def duplicate_multiple_templates(
         input_filename,
         proportion_list,
         templates_list,
-        output_file_formant):
+        output_file_format):
     """Create Mallet files with multiple prefatory strings on documents."""
     with open(input_filename) as f:
         lines = [line for line in f]
@@ -75,7 +75,7 @@ def duplicate_multiple_templates(
         sampled_lines = [
                 (i, templates_list[idx % n_templates] + ' ' + line)
                 for idx, (i, line) in enumerate(lines)]
-        output_filename = output_filename_format.format(prop)
+        output_filename = output_file_format.format(prop)
         write_repeat_file(
                 output_filename,
                 sampled_lines,
