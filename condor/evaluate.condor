@@ -1,0 +1,31 @@
+universe = vanilla
+executable = ../bash/evaluate_topics.sh
+notification = Never
+output = ../logs/eval-$(Cluster)-$(Process).out
+error = ../logs/eval-$(Cluster)-$(Process).err
+log = ../logs/eval-$(Cluster)-$(Process).log
+getenv = True
+arguments = reusl $(Process)
+queue 300
+arguments = nyt $(Process)
+queue 300
+
+executable = ../bash/evaluate-lorem.sh
+notification = Never
+output = ../logs/eval-lorem-$(Cluster)-$(Process).out
+error = ../logs/eval-lorem-$(Cluster)-$(Process).err
+log = ../logs/eval-lorem-$(Cluster)-$(Process).log
+arguments = reusl $(Process)
+queue 50
+arguments = nyt $(Process)
+queue 50
+
+executable = ../bash/evaluate-sample.sh
+notification = Never
+output = ../logs/eval-sample-$(Cluster)-$(Process).out
+error = ../logs/eval-sample-$(Cluster)-$(Process).err
+log = ../logs/eval-sample-$(Cluster)-$(Process).log
+arguments = reusl $(Process)
+queue 50
+arguments = nyt $(Process)
+queue 50

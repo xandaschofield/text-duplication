@@ -1,0 +1,12 @@
+universe = vanilla
+executable = ../bash/lsa-sample.sh
+notification = Never
+stream_error = True
+output = ../logs/lsa-sample-$(Cluster)-$(Process).out
+error = ../logs/lsa-sample-$(Cluster)-$(Process).err
+log = ../logs/lsa-sample-$(Cluster)-$(Process).log
+getenv = True
+arguments = reusl-train $(Process)
+queue 50
+arguments = nyt-train $(Process)
+queue 50

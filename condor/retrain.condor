@@ -1,0 +1,31 @@
+universe = vanilla
+executable = ../bash/retrain.sh
+notification = Never
+output = ../logs/retrain-$(Cluster)-$(Process).out
+error = ../logs/retrain-$(Cluster)-$(Process).err
+log = ../logs/retrain-$(Cluster)-$(Process).log
+getenv = True
+arguments = reusl-train $(Process)
+queue 300
+arguments = nyt-train $(Process)
+queue 300
+
+executable = ../bash/retrain-lorem.sh
+notification = Never
+output = ../logs/retrain-lorem-$(Cluster)-$(Process).out
+error = ../logs/retrain-lorem-$(Cluster)-$(Process).err
+log = ../logs/retrain-lorem-$(Cluster)-$(Process).log
+arguments = reusl-train $(Process)
+queue 50
+arguments = nyt-train $(Process)
+queue 50
+
+executable = ../bash/retrain-sample.sh
+notification = Never
+output = ../logs/retrain-sample-$(Cluster)-$(Process).out
+error = ../logs/retrain-sample-$(Cluster)-$(Process).err
+log = ../logs/retrain-sample-$(Cluster)-$(Process).log
+arguments = reusl-train $(Process)
+queue 50
+arguments = nyt-train $(Process)
+queue 50

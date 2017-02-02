@@ -1,0 +1,12 @@
+universe = vanilla
+executable = ../bash/lsa-lorem.sh
+notification = Never
+stream_error = True
+output = ../logs/lsa-lorem-$(Cluster)-$(Process).out
+error = ../logs/lsa-lorem-$(Cluster)-$(Process).err
+log = ../logs/lsa-lorem-$(Cluster)-$(Process).log
+getenv = True
+arguments = reusl-train $(Process)
+queue 50
+arguments = nyt-train $(Process)
+queue 50

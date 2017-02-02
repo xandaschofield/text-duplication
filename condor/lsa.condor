@@ -1,12 +1,12 @@
 universe = vanilla
 executable = ../bash/lsa.sh
 notification = Never
+stream_error = True
 output = ../logs/lsa-$(Cluster)-$(Process).out
 error = ../logs/lsa-$(Cluster)-$(Process).err
 log = ../logs/lsa-$(Cluster)-$(Process).log
 getenv = True
 arguments = reusl-train $(Process)
-queue 5
-#queue 300
-#arguments = nyt-train $(Process)
-#queue 300
+queue 300
+arguments = nyt-train $(Process)
+queue 300
