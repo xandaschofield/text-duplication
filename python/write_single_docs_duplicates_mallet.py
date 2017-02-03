@@ -8,8 +8,8 @@ import duplicate_writing
 
 if __name__ == "__main__":
     input_filename = sys.argv[1]
-    proportion_list = [0.0001, 0.001, 0.01, 0.1]
-    frequency_list = [1, 2, 4, 8]
+    proportion_list = [None]
+    frequency_list = [2**x for x in range(15)]
     format_string = sys.argv[2]
     duplicate_writing.duplicate_exact_lines(
             input_filename,

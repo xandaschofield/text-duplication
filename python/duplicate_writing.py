@@ -15,7 +15,11 @@ def sample_lines(lines, proportion):
     Returns:
         a tuple of lists of strings (sampled_lines, unsampled_lines)
     """
-    lines_to_sample = set(random.sample(range(len(lines)), int(len(lines) * proportion)))
+    if proportion is None:
+        n_samples = 1
+    else:
+        n_samples = int(len(lines) * proportion)
+    lines_to_sample = set(random.sample(range(len(lines)), n_samples))
 
     sampled_lines = [(i, line) for i, line in enumerate(lines) if i in lines_to_sample]
     unsampled_lines = [(i, line) for i, line in enumerate(lines) if i not in lines_to_sample]

@@ -84,14 +84,16 @@ def compute_key_proportion(key_lists, unigram_key_list):
     return float(total_matched)/total_keys
 
 
-def compute_perplexity(log_prob_fname, n_tokens, mask):
+def compute_perplexity(log_prob_fname, n_tokens, mask=None):
     """Compute the perplexity of documents in a topic model, including
     only those matching a mask."""
     num = 0
     denom = 0
     with open(log_prob_fname) as f:
         for i, line in enumerate(f):
-            if mask[i]:
+            if mask is None or mask[i]:
                 num += float(line.split()[-1])
-                denom += n_tokens(i)
+                denom += n_tokens[i]
+    if denom == 0:
+        return None
     return np.exp(-num / denom)

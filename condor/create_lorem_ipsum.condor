@@ -5,7 +5,11 @@ output = ../logs/lorem-$(Cluster)-$(Process).out
 error = ../logs/lorem-$(Cluster)-$(Process).err
 log = ../logs/lorem-$(Cluster)-$(Process).log
 getenv = True
-arguments = ../data/reusl-train.txt ../lorem_ipsum_input/reusl-train-$(Process)-{}.txt ../data/lorem-ipsum.txt 100 
+arguments = ../data/reusl-train.txt ../lorem_ipsum/long/input/reusl-train-$(Process)-{}.txt ../data/lorem-ipsum.txt 100
 queue 10
-arguments = ../data/nyt-train.txt ../lorem_ipsum_input/nyt-train-$(Process)-{}.txt ../data/lorem-ipsum.txt 100 
+arguments = ../data/nyt-train.txt ../lorem_ipsum/long/input/nyt-train-$(Process)-{}.txt ../data/lorem-ipsum.txt 100
+queue 10
+arguments = ../data/reusl-short.txt ../lorem_ipsum/short/input/reusl-short-$(Process)-{}.txt ../data/lorem-ipsum.txt 100
+queue 10
+arguments = ../data/nyt-short.txt ../lorem_ipsum/short/input/nyt-short-$(Process)-{}.txt ../data/lorem-ipsum.txt 100
 queue 10

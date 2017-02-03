@@ -22,7 +22,7 @@ def get_template_string(filename, n_toks, line_idx=None):
 
 
 if __name__ == "__main__":
-    proportion_list = [0.0001, 0.001, 0.01, 0.1, 1.0]
+    proportion_list = [0.0001, 0.001, 0.01, 0.1]
     line_idx = None
     if len(sys.argv) == 5:
         _, input_filename, format_string_file, template_file, n_toks_str = sys.argv

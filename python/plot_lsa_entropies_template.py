@@ -1,9 +1,8 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-# Author: Xanda Schofield
+# Author: Xanda Schofield and Laure Thompson
 import os
 import re
-import sys
 
 import matplotlib
 matplotlib.use('Agg')
@@ -12,7 +11,7 @@ import numpy as np
 from pandas import DataFrame
 import seaborn as sns
 
-import lda_metrics
+import lsa
 
 
 n_props_list = [0.0001, 0.001, 0.01, 0.1, 1.0]
@@ -20,28 +19,27 @@ n_freqs_list = [1, 2, 4, 8, 16, 32]
 n_topics_list = [5, 10, 20, 40, 80]
 
 
-def gather_entropies_for_template_seq_file(
+def gather_entropies_for_template_txt_file(
         output_dir_name,
-        seq_file_name,
-        repeats_mask,
+        txt_file_name,
         n_topics=None):
     # Where we store outputs
     entropy_dict = {}
     entropy_repeated_dict = {}
     entropy_unrepeated_dict = {}
 
-    # Filtering files based on seq file
-    doctopic_fname_regex = r'[a-z\-]+(\d+)-([\d.]+)-(\d+).doctopics'
-    seq_file_prefix = seq_file_name[:-4]
+    # Filtering files based on txt file
+    w_fname_regex = r'[a-z\-]+(\d+)-([\d.]+)-(\d+).lsa-w.txt'
+    txt_file_prefix = txt_file_name[:-4]
     for fname in os.listdir(output_dir_name):
-        if not fname.startswith(seq_file_prefix + '-'):
+        if not fname.startswith(txt_file_prefix + '-'):
             continue
 
         # Get the fields out of the file name
-        doc_topic_match = re.match(doctopic_fname_regex, fname)
-        if doc_topic_match is None:
+        w_match = re.match(w_fname_regex, fname)
+        if w_match is None:
             continue
-        f_proc_id, f_prop, f_n_topics = doc_topic_match.group(1, 2, 3)
+        f_proc_id, f_prop, f_n_topics = w_match.group(1, 2, 3)
         f_proc_id = int(f_proc_id)
         f_prop = float(f_prop)
         f_n_topics = int(f_n_topics)
@@ -51,8 +49,9 @@ def gather_entropies_for_template_seq_file(
             continue
 
         # Compute average entropies
-        topic_weights_matrix = read_in_doc_topics(os.path.join(output_dir_name, fname))
-        entropies = lda_metrics.compute_entropies(topic_weights_matrix)
+        repeats_mask, w_matrix = read_in_w(os.path.join(output_dir_name, fname))
+        print('{}'.format(w_matrix.shape), flush=True)
+        entropies = lsa.compute_entropies(w_matrix)
         entropy_dict[f_n_topics] = np.mean(entropies)
         entropy_repeated_dict[f_n_topics] = np.mean(entropies[repeats_mask])
         if f_prop < 1:
@@ -63,16 +62,20 @@ def gather_entropies_for_template_seq_file(
     return entropy_dict, entropy_repeated_dict, entropy_unrepeated_dict
 
 
-def read_in_doc_topics(doc_topic_fname):
-    topic_weights_list = []
-    with open(doc_topic_fname) as doc_topic_file:
-        for i, line in enumerate(doc_topic_file):
-            row = line.strip().split('\t')
+def read_in_w(w_fname):
+    repeats_mask = []
+    w_rows_list = []
+    with open(w_fname) as w_file:
+        for i, line in enumerate(w_file):
+            row = line.strip().split(' ')
             _, original_id, line_id = row[1].split('-')
-            topic_weights = np.array([float(c) for c in row[2:]])
-            topic_weights_list.append(topic_weights)
-    topic_weights_matrix = np.vstack(topic_weights_list)
-    return topic_weights_matrix
+            label = (row[2] == 'True')
+            repeats_mask.append(label)
+            w_row = np.array([float(c) for c in row[3:]])
+            w_rows_list.append(w_row)
+    repeats_mask = np.array(repeats_mask, dtype=bool)
+    w_matrix = np.vstack(w_rows_list)
+    return repeats_mask, w_matrix
 
 
 def plot_template_entropies(
@@ -83,36 +86,25 @@ def plot_template_entropies(
         n_proc=None):
     entropies = []
 
-    for seq_fname in os.listdir(input_dir_name):
-        # Check sequence filename is valid
-        if not seq_fname.endswith('.txt'):
+    for txt_fname in os.listdir(input_dir_name):
+        # Check text filename is valid
+        if not txt_fname.endswith('.txt'):
             continue
-        elif not seq_fname.startswith(file_prefix):
+        elif not txt_fname.startswith(file_prefix):
             continue
-        elif n_proc is not None and not seq_fname.startswith('{}-{}-'.format(file_prefix, n_proc)):
+        elif n_proc is not None and not txt_fname.startswith('{}-{}-'.format(file_prefix, n_proc)):
             continue
 
         # Pull out the proportion and frequency of repeats from the filename
-        seq_fname_regex = r'[a-z\-]+(\d+)-([\d.]+).txt'
-        seq_file_match = re.match(seq_fname_regex, seq_fname)
-        if seq_file_match is None:
+        txt_fname_regex = r'[a-z\-]+(\d+)-([\d.]+).txt'
+        txt_file_match = re.match(txt_fname_regex, txt_fname)
+        if txt_file_match is None:
             continue
-        s_prop = float(seq_file_match.group(2))
+        s_prop = float(txt_file_match.group(2))
 
-        # Extract the sequence file info
-        (
-            repeated_documents,
-            n_tokens,
-            repeats_mask,
-            doc_models,
-            vocab) = lda_metrics.split_docs_by_repeated(
-                    os.path.join(input_dir_name, seq_fname))
-
-
-        entropy_dict, entropy_duplicated, entropy_singular = gather_entropies_for_template_seq_file(
+        entropy_dict, entropy_duplicated, entropy_singular = gather_entropies_for_template_txt_file(
             output_dir_name,
-            seq_fname,
-            repeats_mask)
+            txt_fname)
         for n_topics, ent in entropy_dict.items():
             entropies.append({
                 'proportion': s_prop,
@@ -152,8 +144,8 @@ def plot_template_entropies(
 
 
 if __name__ == '__main__':
-    output_dir_name = sys.argv[1]
-    input_dir_name = output_dir_name.replace('output', 'input')
-    file_prefix = sys.argv[2]
-    save_file = sys.argv[3]
+    input_dir_name = '../sample_template_input'
+    output_dir_name = '../sample_template_output'
+    file_prefix = 'reusl-train'
+    save_file = 'lsa_sample.png'
     plot_template_entropies(input_dir_name, output_dir_name, file_prefix, save_file)

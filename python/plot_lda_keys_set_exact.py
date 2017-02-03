@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 # Author: Xanda Schofield
+from collections import Counter
 import os
 import re
 import sys
@@ -15,32 +16,32 @@ import seaborn as sns
 import lda_metrics
 
 
-n_props_list = [0.0001, 0.001, 0.01, 0.1, 1.0]
+n_props_list = [0.0001, 0.001, 0.01, 0.1]
 n_freqs_list = [1, 2, 4, 8, 16]
 n_topics_list = [5, 10, 20, 40, 80]
 
-def gather_entropies_for_seq_file(
+def gather_top_keys_for_seq_file(
         output_dir_name,
         seq_file_name,
-        repeats_mask,
+        doc_models,
+        vocab,
         n_topics=None):
     # Where we store outputs
-    entropy_dict = {}
-    entropy_repeated_dict = {}
-    entropy_unrepeated_dict = {}
+    top_keys_all_dict = {}
+    top_keys_per_dict = {}
 
     # Filtering files based on seq file
-    doctopic_fname_regex = r'[a-z\-]+(\d+)-([\d.]+)-(\d+)-(\d+).doctopics'
+    keyfile_name_regex = r'[a-z\-]+(\d+)-([\d.]+)-(\d+)-(\d+).keys'
     seq_file_prefix = seq_file_name[:-4]
     for fname in os.listdir(output_dir_name):
         if not fname.startswith(seq_file_prefix + '-'):
             continue
 
         # Get the fields out of the file name
-        doc_topic_match = re.match(doctopic_fname_regex, fname)
-        if doc_topic_match is None:
+        keyfile_match = re.match(keyfile_name_regex, fname)
+        if keyfile_match is None:
             continue
-        f_proc_id, f_prop, f_freq, f_n_topics = doc_topic_match.group(1, 2, 3, 4)
+        f_proc_id, f_prop, f_freq, f_n_topics = keyfile_match.group(1, 2, 3, 4)
         f_proc_id = int(f_proc_id)
         f_prop = float(f_prop)
         f_freq = int(f_freq)
@@ -50,38 +51,40 @@ def gather_entropies_for_seq_file(
         if n_topics is not None and f_n_topics != n_topics:
             continue
 
-        # Compute average entropies
-        topic_weights_matrix = read_in_doc_topics(os.path.join(output_dir_name, fname))
-        entropies = lda_metrics.compute_entropies(topic_weights_matrix)
-        entropy_dict[f_n_topics] = np.mean(entropies)
-        entropy_repeated_dict[f_n_topics] = np.mean(entropies[repeats_mask])
-        if f_prop < 1:
-            entropy_unrepeated_dict[f_n_topics] = np.mean(entropies[np.logical_not(repeats_mask)])
-        else:
-            entropy_unrepeated_dict[f_n_topics] = 0
+        # Compute average top_keys
+        keyword_list = read_in_keys(os.path.join(output_dir_name, fname), vocab)
+        all_duplicates_set = set(generate_unigrams(doc_models.sum(axis=0)))
+        per_duplicate_set = set()
+        block_size = 1000
+        for block_idx in range(0, doc_models.shape[0], block_size):
+            per_duplicate_set.update(generate_unigrams(doc_models[
+                block_idx:min(block_idx+block_size, doc_models.shape[0])].todense()))
+        top_keys_all_dict[f_n_topics] = float(len([k for k in keyword_list if k in all_duplicates_set])) / len(keyword_list)
+        top_keys_per_dict[f_n_topics] = float(len([k for k in keyword_list if k in per_duplicate_set])) / len(keyword_list)
 
-    return entropy_dict, entropy_repeated_dict, entropy_unrepeated_dict
-
-
-def read_in_doc_topics(doc_topic_fname):
-    topic_weights_list = []
-    with open(doc_topic_fname) as doc_topic_file:
-        for i, line in enumerate(doc_topic_file):
-            row = line.strip().split('\t')
-            _, original_id, line_id = row[1].split('-')
-            topic_weights = np.array([float(c) for c in row[2:]])
-            topic_weights_list.append(topic_weights)
-    topic_weights_matrix = np.vstack(topic_weights_list)
-    return topic_weights_matrix
+    return top_keys_all_dict, top_keys_per_dict
 
 
-def plot_exact_entropies(
+def generate_unigrams(unigram_vecs):
+    top_inds = np.argpartition(unigram_vecs, -20, axis=-1)[:,-20:]
+    return set([int(i) for i in np.nditer(top_inds)])
+
+def read_in_keys(keyfile_name, vocab):
+    keyword_list = []
+    with open(keyfile_name) as keyfile:
+        for line in keyfile:
+            words = line.strip().split()[2:]
+            keyword_list += [vocab.get(w, -1) for w in words]
+    return keyword_list
+
+
+def plot_exact_top_keys(
         input_dir_name,
         output_dir_name,
         file_prefix,
         save_file,
         n_proc=None):
-    entropies = []
+    top_keys = []
 
     for seq_fname in os.listdir(input_dir_name):
         # Check sequence filename is valid
@@ -102,6 +105,8 @@ def plot_exact_entropies(
         s_freq = int(s_freq)
         if s_freq not in n_freqs_list:
             continue
+        if s_prop not in n_props_list:
+            continue
         print(seq_fname)
 
         # Extract the sequence file info
@@ -114,40 +119,32 @@ def plot_exact_entropies(
                     os.path.join(input_dir_name, seq_fname))
 
 
-        entropy_dict, entropy_duplicated, entropy_singular = gather_entropies_for_seq_file(
+        top_keys_all_dict, top_keys_per_dict = gather_top_keys_for_seq_file(
             output_dir_name,
             seq_fname,
-            repeats_mask)
-        for n_topics, ent in entropy_dict.items():
-            entropies.append({
+            doc_models,
+            vocab)
+        for n_topics, prop in top_keys_all_dict.items():
+            top_keys.append({
                 'proportion': s_prop,
                 'frequency': s_freq,
                 'n_topics': n_topics,
                 'process_id': n_proc,
-                'entropy': ent,
+                'top_keys': prop,
                 'contents': 'all',
             })
-        for n_topics, ent in entropy_duplicated.items():
-            entropies.append({
+        for n_topics, prop in top_keys_per_dict.items():
+            top_keys.append({
                 'proportion': s_prop,
                 'frequency': s_freq,
                 'n_topics': n_topics,
                 'process_id': n_proc,
-                'entropy': ent,
-                'contents': 'duplicated',
-            })
-        for n_topics, ent in entropy_singular.items():
-            entropies.append({
-                'proportion': s_prop,
-                'frequency': s_freq,
-                'n_topics': n_topics,
-                'process_id': n_proc,
-                'entropy': ent,
-                'contents': 'unduplicated',
+                'top_keys': prop,
+                'contents': 'per duplicate',
             })
 
-    plt.figure(figsize=(50, 30))
-    dataf = DataFrame([e for e in entropies if e['frequency'] == 8])
+    plt.figure(figsize=(50, 20))
+    dataf = DataFrame([e for e in top_keys])
     g = sns.FacetGrid(
             dataf,
             col='n_topics',
@@ -156,15 +153,12 @@ def plot_exact_entropies(
     g.map_dataframe(facet_heatmap, cbar_ax=cbar_ax)
     g.set_titles(col_template="{col_name} topics", row_template="{row_name}")
     g.fig.subplots_adjust(right=.9)
-    # Dict structure: dict[prop][freq] = list[entropies]
-    # For each seq file, get entropies, update a dict
-    # Turn this into a color plot
     plt.savefig(save_file)
 
 
 def facet_heatmap(data, color, **kws):
-    data = data.pivot(index='proportion', columns='frequency', values='entropy')
-    sns.heatmap(data, cmap='Blues', **kws)
+    data = data.pivot(index='proportion', columns='frequency', values='top_keys')
+    sns.heatmap(data, cmap='Blues', vmin=0, vmax=1, **kws)
 
 
 if __name__ == '__main__':
@@ -172,4 +166,4 @@ if __name__ == '__main__':
     output_dir_name = '../exact_duplicates_output'
     file_prefix = sys.argv[1]
     save_file = sys.argv[2]
-    plot_exact_entropies(input_dir_name, output_dir_name, file_prefix, save_file)
+    plot_exact_top_keys(input_dir_name, output_dir_name, file_prefix, save_file)

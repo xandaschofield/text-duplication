@@ -1,11 +1,15 @@
 universe = vanilla
-executable = ../python/write_corpus_to_mallet.py
+executable = ../python/write_exact_duplicates_mallet.py
 notification = Never
 output = ../logs/duplicate-$(Cluster)-$(Process).out
 error = ../logs/duplicate-$(Cluster)-$(Process).err
 log = ../logs/duplicate-$(Cluster)-$(Process).log
 getenv = True
-arguments = ../data/reusl-train.txt ../exact_duplicates_input/reusl-train-$(Process)-{}-{}.txt
+arguments = ../data/reusl-train.txt ../exact_duplicates/long/input/reusl-train-$(Process)-{}-{}.txt
 queue 10
-arguments = ../data/nyt-train.txt ../exact_duplicates_input/nyt-train-$(Process)-{}-{}.txt
+arguments = ../data/nyt-train.txt ../exact_duplicates/long/input/nyt-train-$(Process)-{}-{}.txt
+queue 10
+arguments = ../data/reusl-short.txt ../exact_duplicates/short/input/reusl-short-$(Process)-{}-{}.txt
+queue 10
+arguments = ../data/nyt-short.txt ../exact_duplicates/short/input/nyt-short-$(Process)-{}-{}.txt
 queue 10

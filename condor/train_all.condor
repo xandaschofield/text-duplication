@@ -1,0 +1,44 @@
+universe = vanilla
+executable = ../bash/train_new.sh
+output = ../logs/train-all-$(Cluster)-$(Process).out
+error = ../logs/train-all-$(Cluster)-$(Process).err
+log = ../logs/train-all-$(Cluster)-$(Process).log
+getenv = True
+arguments = ../exact_duplicates/long/ reusl-train $(Process) 160
+queue 160
+arguments = ../exact_duplicates/long/ nyt-train $(Process) 160
+queue 160
+arguments = ../exact_duplicates/short/ reusl-short $(Process) 160
+queue 160
+arguments = ../exact_duplicates/short/ nyt-short $(Process) 160
+queue 160
+
+executable = ../bash/train_new.sh
+arguments = ../exact_duplicates_singledoc/long/ reusl-train $(Process) 150
+queue 150
+arguments = ../exact_duplicates_singledoc/long/ nyt-train $(Process) 150
+queue 150
+arguments = ../exact_duplicates_singledoc/short/ reusl-short $(Process) 150
+queue 150
+arguments = ../exact_duplicates_singledoc/short/ nyt-short $(Process) 150
+queue 150
+
+executable = ../bash/train_new.sh
+arguments = ../lorem_ipsum/long/ reusl-train $(Process) 40
+queue 40
+arguments = ../lorem_ipsum/long/ nyt-train $(Process) 40
+queue 40
+arguments = ../lorem_ipsum/short/ reusl-short $(Process) 40
+queue 40
+arguments = ../lorem_ipsum/short/ nyt-short $(Process) 40
+queue 40
+
+executable = ../bash/train_new.sh
+arguments = ../sample_template/long/ reusl-train $(Process) 40
+queue 40
+arguments = ../sample_template/long/ nyt-train $(Process) 40
+queue 40
+arguments = ../sample_template/short/ reusl-short $(Process) 40
+queue 40
+arguments = ../sample_template/short/ nyt-short $(Process) 40
+queue 40

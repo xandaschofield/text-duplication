@@ -1,0 +1,43 @@
+universe = vanilla
+notification = Never
+output = ../logs/plot-$(Cluster)-$(Process).out
+error = ../logs/plot-$(Cluster)-$(Process).err
+log = ../logs/plot-$(Cluster)-$(Process).log
+getenv = True
+executable = ../python/plot_lda_entropies_exact.py
+arguments = reusl-train ../figs/lda_entropy_exact_reusl.pdf
+queue
+arguments = nyt-train ../figs/lda_entropy_exact_nyt.pdf
+queue
+
+executable = ../python/plot_lda_entropies_template.py
+arguments = ../lorem_ipsum_output reusl-train ../figs/lda_entropy_lorem_reusl.pdf
+queue
+arguments = ../lorem_ipsum_output nyt-train ../figs/lda_entropy_lorem_nyt.pdf
+queue
+arguments = ../sample_template_output reusl-train ../figs/lda_entropy_sample_reusl.pdf
+queue
+arguments = ../sample_template_output nyt-train ../figs/lda_entropy_sample_nyt.pdf
+queue
+
+executable = ../python/plot_lda_keys_set_exact.py
+arguments = reusl-train ../figs/lda_keys_set_exact_reusl.pdf
+queue
+arguments = nyt-train ../figs/lda_keys_set_exact_nyt.pdf
+queue
+
+executable = ../python/plot_perplexities_exact.py
+arguments = reusl-train ../figs/lda_perplexities_exact_reusl.pdf
+queue
+arguments = nyt-train ../figs/lda_perplexities_exact_nyt.pdf
+queue
+
+executable = ../python/plot_perplexities_template.py
+arguments = ../lorem_ipsum_output reusl-train ../figs/lda_perplexities_lorem_reusl.pdf
+queue
+arguments = ../lorem_ipsum_output nyt-train ../figs/lda_perplexities_lorem_nyt.pdf
+queue
+arguments = ../sample_template_output reusl-train ../figs/lda_perplexities_sample_reusl.pdf
+queue
+arguments = ../sample_template_output nyt-train ../figs/lda_perplexities_sample_nyt.pdf
+queue

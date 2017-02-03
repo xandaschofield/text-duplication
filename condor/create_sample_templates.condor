@@ -5,7 +5,11 @@ output = ../logs/sample-template-$(Cluster)-$(Process).out
 error = ../logs/sample-template-$(Cluster)-$(Process).err
 log = ../logs/sample-template-$(Cluster)-$(Process).log
 getenv = True
-arguments = ../data/reusl-train.txt ../sample_template_input/reusl-train-$(Process)-{}.txt ../data/reusl-excerpt.txt 100 $(Process)
+arguments = ../data/reusl-train.txt ../sample_template/long/input/reusl-train-$(Process)-{}.txt ../data/reusl-excerpt.txt 100 $(Process)
 queue 10
-arguments = ../data/nyt-train.txt ../sample_template_input/nyt-train-$(Process)-{}.txt ../data/nyt-excerpt.txt 100 $(Process) 
+arguments = ../data/nyt-train.txt ../sample_template/long/input/nyt-train-$(Process)-{}.txt ../data/nyt-excerpt.txt 100 $(Process)
+queue 10
+arguments = ../data/reusl-short.txt ../sample_template/short/input/reusl-short-$(Process)-{}.txt ../data/reusl-excerpt.txt 100 $(Process)
+queue 10
+arguments = ../data/nyt-short.txt ../sample_template/short/input/nyt-short-$(Process)-{}.txt ../data/reusl-excerpt.txt 100 $(Process)
 queue 10

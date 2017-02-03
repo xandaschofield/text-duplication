@@ -7,7 +7,6 @@ from scipy.sparse import csr_matrix, linalg
 from scipy import stats
 from sklearn.feature_extraction import text
 
-
 # Assume corpus_mat is a csr_matrix
 def run_lsa(corpus_mat, k):
     n_docs, n_words = corpus_mat.shape
@@ -17,12 +16,13 @@ def run_lsa(corpus_mat, k):
     us = u.dot(np.diag(s))
     
     print('{}: ...calculating loss'.format(k), file=sys.stderr, flush=True)
-    norm_loss = []
+    norm_loss = np.zeros(n_docs)
     for i in range(n_docs):
-        #print('{}: ......{}/{} row'.format(k, i+1, n_docs), file=sys.stderr, flush=True)
+        if not i % 1000:
+            print('{}: ......{}/{} row'.format(k, i, n_docs), file=sys.stderr, flush=True)
         approx_row = us[i, :].dot(vt)
         loss = corpus_mat.getrow(i).todense() - approx_row
-        norm_loss.append(np.linalg.norm(loss))
+        norm_loss[i] = np.linalg.norm(loss)
 
     #norm_loss = linalg.norm(loss_mat, axis=1)
     return u, s, vt.T, norm_loss

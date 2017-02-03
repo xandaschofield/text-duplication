@@ -1,0 +1,15 @@
+universe = vanilla
+executable = ../python/write_single_docs_duplicates_mallet.py
+notification = Never
+output = ../logs/duplicate-$(Cluster)-$(Process).out
+error = ../logs/duplicate-$(Cluster)-$(Process).err
+log = ../logs/duplicate-$(Cluster)-$(Process).log
+getenv = True
+arguments = ../data/reusl-train.txt ../exact_duplicates_singledoc/long/input/reusl-train-$(Process)-{}-{}.txt
+queue 10
+arguments = ../data/nyt-train.txt ../exact_duplicates_singledoc/long/input/nyt-train-$(Process)-{}-{}.txt
+queue 10
+arguments = ../data/reusl-short.txt ../exact_duplicates_singledoc/short/input/reusl-short-$(Process)-{}-{}.txt
+queue 10
+arguments = ../data/nyt-short.txt ../exact_duplicates_singledoc/short/input/nyt-short-$(Process)-{}-{}.txt
+queue 10

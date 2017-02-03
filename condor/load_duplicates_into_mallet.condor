@@ -5,11 +5,35 @@ output = ../logs/load-$(Cluster)-$(Process).out
 error = ../logs/load-$(Cluster)-$(Process).err
 log = ../logs/load-$(Cluster)-$(Process).log
 getenv = True
-# arguments = ../exact_duplicates_input/reusl-train-$(Process)
-# arguments = ../lorem_ipsum_input/reusl-train-$(Process)
-arguments = ../sample_template_input/reusl-train-$(Process)
-queue 10
-# arguments = ../exact_duplicates_input/nyt-train-$(Process)
-# arguments = ../lorem_ipsum_input/nyt-train-$(Process)
-arguments = ../sample_template_input/nyt-train-$(Process)
-queue 10
+arguments = ../sample_template/long/input/reusl-train-
+queue
+arguments = ../sample_template/long/input/nyt-train-
+queue
+arguments = ../sample_template/short/input/reusl-short-
+queue
+arguments = ../sample_template/short/input/nyt-short-
+queue
+arguments = ../lorem_ipsum/long/input/reusl-train-
+queue
+arguments = ../lorem_ipsum/long/input/nyt-train-
+queue
+arguments = ../lorem_ipsum/short/input/reusl-short-
+queue
+arguments = ../lorem_ipsum/short/input/nyt-short-
+queue
+arguments = ../exact_duplicates/long/input/reusl-train-
+queue
+arguments = ../exact_duplicates/long/input/nyt-train-
+queue
+arguments = ../exact_duplicates/short/input/reusl-short-
+queue
+arguments = ../exact_duplicates/short/input/nyt-short-
+queue
+arguments = ../exact_duplicates_singledoc/long/input/reusl-train-
+queue
+arguments = ../exact_duplicates_singledoc/long/input/nyt-train-
+queue
+arguments = ../exact_duplicates_singledoc/short/input/reusl-short-
+queue
+arguments = ../exact_duplicates_singledoc/short/input/nyt-short-
+queue
