@@ -1,0 +1,31 @@
+universe = vanilla
+notification = Never
+output = ../logs/plot-lsa-$(Cluster)-$(Process).out
+error = ../logs/plot-lsa-$(Cluster)-$(Process).err
+log = ../logs/plot-lsa-$(Cluster)-$(Process).log
+getenv = True
+
+executable = ../python/plot_lsa_entropies_exact_single.py
+
+# exact duplicates
+arguments = ../exact_duplicates_singledoc/long/input /home/ljt82/text-duplication/exact_duplicates_singledoc/long/output reusl-train /home/ljt82/text-duplication/figs/lsa_entropy_exact_single_long_reusl.png
+queue
+arguments = ../exact_duplicates_singledoc/long/input /home/ljt82/text-duplication/exact_duplicates_singledoc/long/output nyt-train /home/ljt82/text-duplication/figs/lsa_entropy_exact_single_long_nyt.png
+queue
+arguments = ../exact_duplicates_singledoc/short/input /home/ljt82/text-duplication/exact_duplicates_singledoc/short/output reusl-short /home/ljt82/text-duplication/figs/lsa_entropy_exact_single_short_reusl.png
+queue
+arguments = ../exact_duplicates_singledoc/short/input /home/ljt82/text-duplication/exact_duplicates_singledoc/short/output nyt-short /home/ljt82/text-duplication/figs/lsa_entropy_exact_single_short_nyt.png
+queue
+
+executable = ../python/plot_lsa_loss_exact_single.py
+
+# exact duplicates
+arguments = ../exact_duplicates_singledoc/long/input /home/ljt82/text-duplication/exact_duplicates_singledoc/long/output reusl-train /home/ljt82/text-duplication/figs/lsa_loss_exact_single_long_reusl.png
+queue
+arguments = ../exact_duplicates_singledoc/long/input /home/ljt82/text-duplication/exact_duplicates_singledoc/long/output nyt-train /home/ljt82/text-duplication/figs/lsa_loss_exact_single_long_nyt.png
+queue
+arguments = ../exact_duplicates_singledoc/short/input /home/ljt82/text-duplication/exact_duplicates_singledoc/short/output reusl-short /home/ljt82/text-duplication/figs/lsa_loss_exact_single_short_reusl.png
+queue
+arguments = ../exact_duplicates_singledoc/short/input /home/ljt82/text-duplication/exact_duplicates_singledoc/short/output nyt-short /home/ljt82/text-duplication/figs/lsa_loss_exact_single_short_nyt.png
+queue
+

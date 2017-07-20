@@ -1,0 +1,75 @@
+universe = vanilla
+notification = Never
+output = ../logs/plot-lsa-$(Cluster)-$(Process).out
+error = ../logs/plot-lsa-$(Cluster)-$(Process).err
+log = ../logs/plot-lsa-$(Cluster)-$(Process).log
+getenv = True
+
+executable = ../python/plot_lsa_entropies_exact.py
+
+# exact duplicates
+arguments = ../exact_duplicates/long/input /home/ljt82/text-duplication/exact_duplicates/long/output reusl-train /home/ljt82/text-duplication/figs/lsa_entropy_exact_long_reusl.png
+queue
+arguments = ../exact_duplicates/long/input /home/ljt82/text-duplication/exact_duplicates/long/output nyt-train /home/ljt82/text-duplication/figs/lsa_entropy_exact_long_nyt.png
+queue
+arguments = ../exact_duplicates/short/input /home/ljt82/text-duplication/exact_duplicates/short/output reusl-short /home/ljt82/text-duplication/figs/lsa_entropy_exact_short_reusl.png
+queue
+arguments = ../exact_duplicates/short/input /home/ljt82/text-duplication/exact_duplicates/short/output nyt-short /home/ljt82/text-duplication/figs/lsa_entropy_exact_short_nyt.png
+queue
+
+executable = ../python/plot_lsa_entropies_template.py
+
+# lorem ipsum
+arguments = ../lorem_ipsum/long/input /home/ljt82/text-duplication/lorem_ipsum/long/output reusl-train /home/ljt82/text-duplication/figs/lsa_entropy_lorem_long_reusl.png
+queue
+arguments = ../lorem_ipsum/long/input /home/ljt82/text-duplication/lorem_ipsum/long/output nyt-train /home/ljt82/text-duplication/figs/lsa_entropy_lorem_long_nyt.png
+queue
+arguments = ../lorem_ipsum/short/input /home/ljt82/text-duplication/lorem_ipsum/short/output reusl-short /home/ljt82/text-duplication/figs/lsa_entropy_lorem_short_reusl.png
+queue
+arguments = ../lorem_ipsum/short/input /home/ljt82/text-duplication/lorem_ipsum/short/output nyt-short /home/ljt82/text-duplication/figs/lsa_entropy_lorem_short_nyt.png
+queue
+
+# sample template
+arguments = ../sample_template/long/input /home/ljt82/text-duplication/sample_template/long/output reusl-train /home/ljt82/text-duplication/figs/lsa_entropy_sample_long_reusl.png
+queue
+arguments = ../sample_template/long/input /home/ljt82/text-duplication/sample_template/long/output nyt-train /home/ljt82/text-duplication/figs/lsa_entropy_sample_long_nyt.png
+queue
+arguments = ../sample_template/short/input /home/ljt82/text-duplication/sample_template/short/output reusl-short /home/ljt82/text-duplication/figs/lsa_entropy_sample_short_reusl.png
+queue
+arguments = ../sample_template/short/input /home/ljt82/text-duplication/sample_template/short/output nyt-short /home/ljt82/text-duplication/figs/lsa_entropy_sample_short_nyt.png
+queue
+
+executable = ../python/plot_lsa_loss_exact.py
+
+# exact duplicates
+arguments = ../exact_duplicates/long/input /home/ljt82/text-duplication/exact_duplicates/long/output reusl-train /home/ljt82/text-duplication/figs/lsa_loss_exact_long_reusl.png
+queue
+arguments = ../exact_duplicates/long/input /home/ljt82/text-duplication/exact_duplicates/long/output nyt-train /home/ljt82/text-duplication/figs/lsa_loss_exact_long_nyt.png
+queue
+arguments = ../exact_duplicates/short/input /home/ljt82/text-duplication/exact_duplicates/short/output reusl-short /home/ljt82/text-duplication/figs/lsa_loss_exact_short_reusl.png
+queue
+arguments = ../exact_duplicates/short/input /home/ljt82/text-duplication/exact_duplicates/short/output nyt-short /home/ljt82/text-duplication/figs/lsa_loss_exact_short_nyt.png
+queue
+
+executable = ../python/plot_lsa_loss_template.py
+
+# lorem ipsum
+arguments = ../lorem_ipsum/long/input /home/ljt82/text-duplication/lorem_ipsum/long/output reusl-train /home/ljt82/text-duplication/figs/lsa_loss_lorem_long_reusl.png
+queue
+arguments = ../lorem_ipsum/long/input /home/ljt82/text-duplication/lorem_ipsum/long/output nyt-train /home/ljt82/text-duplication/figs/lsa_loss_lorem_long_nyt.png
+queue
+arguments = ../lorem_ipsum/short/input /home/ljt82/text-duplication/lorem_ipsum/short/output reusl-short /home/ljt82/text-duplication/figs/lsa_loss_lorem_short_reusl.png
+queue
+arguments = ../lorem_ipsum/short/input /home/ljt82/text-duplication/lorem_ipsum/short/output nyt-short /home/ljt82/text-duplication/figs/lsa_loss_lorem_short_nyt.png
+queue
+
+# sample template
+arguments = ../sample_template/long/input /home/ljt82/text-duplication/sample_template/long/output reusl-train /home/ljt82/text-duplication/figs/lsa_loss_sample_long_reusl.png
+queue
+arguments = ../sample_template/long/input /home/ljt82/text-duplication/sample_template/long/output nyt-train /home/ljt82/text-duplication/figs/lsa_loss_sample_long_nyt.png
+queue
+arguments = ../sample_template/short/input /home/ljt82/text-duplication/sample_template/short/output reusl-short /home/ljt82/text-duplication/figs/lsa_loss_sample_short_reusl.png
+queue
+arguments = ../sample_template/short/input /home/ljt82/text-duplication/sample_template/short/output nyt-short /home/ljt82/text-duplication/figs/lsa_loss_sample_short_nyt.png
+queue
+

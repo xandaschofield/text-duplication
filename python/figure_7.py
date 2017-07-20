@@ -115,9 +115,11 @@ def plot_figure_7(entities, save_file, value_name="value"):
         raise ValueError("No entities in list")
     for e in entities:
         if e['label'] == 'unduplicated':
-            e['label'] = 'singular'
+            e['label'] = 'untemplated'
+        elif e['label'] == 'duplicated':
+            e['label'] = 'templated'
     dataf = DataFrame([e for e in entities])
-    sns.set(style='whitegrid', context='paper', font='serif', font_scale=1.2)
+    sns.set(style='whitegrid', context='paper', font='serif', font_scale=1.3)
     g = sns.factorplot(
             x='k',
             y='value',
@@ -128,8 +130,7 @@ def plot_figure_7(entities, save_file, value_name="value"):
             capsize=.2,
             markers=['.','o','v','^','<', 's', 'p', 'x'],
             sharex=False,
-            sharey=False,
-            aspect=1.5,
+            aspect=1.9,
             size=2,
             scale=0.6,
             errwidth=1,
@@ -139,7 +140,7 @@ def plot_figure_7(entities, save_file, value_name="value"):
     g.despine(left=True)
     g.axes[0][0].legend(loc='best')
     g.set_titles('{row_name}, {col_name}')
-    g.set_axis_labels("topic count", '')
+    g.set_axis_labels("# topics", '')
     plt.savefig(save_file, bbox_inches='tight')
 
 

@@ -1,5 +1,10 @@
 # Where I keep condor logs
 logs/*
+# Input and output files
+exact_duplicates/*
+exact_duplicates_singledoc/*
+lorem_ipsum/*
+sample_template/*
 
 ## Standard Python template from Github
 # Byte-compiled / optimized / DLL files
@@ -91,3 +96,8 @@ ENV/
 
 # Rope project settings
 .ropeproject
+
+# Figure files
+*.pdf
+*.png
+*.pkl

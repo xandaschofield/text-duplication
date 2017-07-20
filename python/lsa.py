@@ -31,6 +31,33 @@ def run_lsa(corpus_mat, k):
 def find_W(U, s):
     return U.dot(np.diag(s))
 
+def read_in_w(w_fname):
+    repeats_mask = []
+    w_rows_list = []
+    with open(w_fname) as w_file:
+        for i, line in enumerate(w_file):
+            row = line.strip().split()
+            _, original_id, line_id = row[1].split('-')
+            label = (row[2] == 'True')
+            repeats_mask.append(label)
+            w_row = np.array([float(c) for c in row[3:]])
+            w_rows_list.append(w_row)
+    repeats_mask = np.array(repeats_mask, dtype=bool)
+    w_matrix = np.vstack(w_rows_list)
+    return repeats_mask, w_matrix
+
+def read_in_loss(loss_fname):
+    repeats_mask = []
+    loss = []
+    with open(loss_fname) as loss_file:
+        for i, line in enumerate(loss_file):
+            row = line.strip().split()
+            label = (row[2] == 'True')
+            repeats_mask.append(label)
+            loss.append(float(row[3]))
+    repeats_mask = np.array(repeats_mask, dtype=bool)
+    loss = np.array(loss, dtype=float)
+    return repeats_mask, loss
 
 def compute_entropies(W):
     n_docs, n_dims = W.shape
@@ -67,9 +94,9 @@ if __name__ == "__main__":
     W = find_W(U, s)
 
     print('{}: Starting all the file writing...'.format(k), file=sys.stderr, flush=True)
-    vocab_writer = open('{}.lsa-vocab.txt'.format(out_pfx), mode='w', encoding='utf8')
-    loss_writer = open('{}.lsa-loss.txt'.format(out_pfx), mode='w', encoding='utf8')
-    w_writer = open('{}.lsa-w.txt'.format(out_pfx), mode='w', encoding='utf8')
+    vocab_writer = open('{}.lsa.vocab.txt'.format(out_pfx), mode='w', encoding='utf8')
+    loss_writer = open('{}.lsa.loss.txt'.format(out_pfx), mode='w', encoding='utf8')
+    w_writer = open('{}.lsa.w.txt'.format(out_pfx), mode='w', encoding='utf8')
 
     # write vocab index file
     for i, term in enumerate(tfidfer.get_feature_names()):

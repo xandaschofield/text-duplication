@@ -46,6 +46,21 @@ def split_docs_by_repeated(input_seq_fname):
     return repeated_docs, n_tokens, repeats_mask, doc_models, cv.vocabulary_
 
 
+def get_test_doc_counts(input_seq_fname, vocab=None):
+    lines = []
+    n_tokens = []
+    with open(input_seq_fname) as f:
+            lines = [line for line in f]
+
+    if vocab is None:
+        cv = text.CountVectorizer()
+    else:
+        cv = text.CountVectorizer(vocabulary=vocab)
+    doc_matrix = cv.fit_transform(lines)
+    n_tokens = np.array(doc_matrix.sum(axis=1))
+    return n_tokens
+
+
 def get_top_keys_unigram(unigram_model, vocab, n_top_keys=20):
     """Obtain the top keys from a unigram language model"""
     top_word_counter = Counter()
